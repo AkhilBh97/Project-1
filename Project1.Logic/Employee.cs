@@ -20,9 +20,16 @@ namespace Project1.Logic
             this.Email = email;
             this._password = password;
             this.Role = role;
+            
         }
 
         //Methods
-
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Email: {Email}\tRole: {Role}");
+            //sb.AppendLine($"Role: {Role}");
+            return sb.ToString();
+        }
     }
 }
