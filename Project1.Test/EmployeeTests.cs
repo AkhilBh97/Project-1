@@ -13,17 +13,24 @@ namespace Project1.Test
     public class EmployeeTests
     {
         [Theory]
-        [InlineData("bob@server.net", "Employee")]
-        [InlineData("bill@server.net", "Manager")]
-        [InlineData("tom@server2.net", "Manager")]
-        public void Test1(string email, string role)
+        [InlineData("bob@server.net", "password123", "Employee")]
+        [InlineData("bill@server.net", "password456", "Manager")]
+        [InlineData("tom@server.net", "password789", null)]
+        public void EmployeeTest(string email, string pass, string? role)
         {
-            
-            Employee test = new Employee(email, role);
-            var expected = $"Email: {email}\tRole: {role}\r\n";
+            //Arrange   
+            //if inline role is null, don't pass to Employee new()
+            Employee test = role==null?new Employee(email, pass):new Employee(email, pass, role);
+            role ??= "Employee";
 
-            Assert.Equal(expected, test.ToString());
+            //Act
+            var actual = test.ToString();
+
+            //Assert
+            var expected = $"Email: {email}\tRole: {role}\r\n";
+            Assert.Equal(expected, actual);
         }
+
 
     }
 }

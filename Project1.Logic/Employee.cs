@@ -15,7 +15,7 @@ namespace Project1.Logic
         public string Role { get; set; }
 
         //Constructors
-        public Employee(string email, string password, string role = "Employee")
+        public Employee(string email, string password, string? role="Employee")
         {
             this.Email = email;
             this._password = password;
