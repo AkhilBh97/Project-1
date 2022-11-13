@@ -1,0 +1,15 @@
+E:\Revature\Projects\Project-1\Project1.App\bin\Debug\net6.0\Project1.App.exe
+E:\Revature\Projects\Project-1\Project1.App\bin\Debug\net6.0\Project1.App.deps.json
+E:\Revature\Projects\Project-1\Project1.App\bin\Debug\net6.0\Project1.App.runtimeconfig.json
+E:\Revature\Projects\Project-1\Project1.App\bin\Debug\net6.0\Project1.App.dll
+E:\Revature\Projects\Project-1\Project1.App\bin\Debug\net6.0\Project1.App.pdb
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.csproj.AssemblyReference.cache
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.GeneratedMSBuildEditorConfig.editorconfig
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.AssemblyInfoInputs.cache
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.AssemblyInfo.cs
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.csproj.CoreCompileInputs.cache
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.dll
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\refint\Project1.App.dll
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.pdb
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\Project1.App.genruntimeconfig.cache
+E:\Revature\Projects\Project-1\Project1.App\obj\Debug\net6.0\ref\Project1.App.dll
