@@ -26,9 +26,10 @@ namespace Project1.App
         public void Run() {
             //clear the screen first
             Console.Clear();
+
+            Console.WriteLine("\tPress the corresponding key from the list below:");
             Console.WriteLine(borders);
             //tell user to press a key
-            Console.WriteLine("Press the corresponding key from the list below:");
             //Option to Register
             Console.WriteLine("1:\tRegister a new user");
             //Option to log in as an Employee
@@ -48,8 +49,8 @@ namespace Project1.App
                     RegisterMenu();
                     break;
                 case ConsoleKey.D2:
-                    //move to Employee Login
-                    EmployeeLogin();
+                    //move to Employee Login/Menu
+                    EmployeeMenu();
                     break;
                 case ConsoleKey.D3:
                     //move to Manager Login
@@ -71,10 +72,12 @@ namespace Project1.App
 
         //Now for the different menus based on user's input
         //User wants to register a new account
-        private void RegisterMenu()
+        public void RegisterMenu()
         {
             Console.Clear();
+            
             Console.WriteLine("Now in the Register menu. Going back now...");
+            Console.WriteLine(borders);
             Console.ReadKey();
             return;
             //Have user enter an email
@@ -89,23 +92,41 @@ namespace Project1.App
             //Have the user enter Y or N if they are a manager or not
 
             
-            //
+            //Create a new Employee in the repo
+
+
+            //Move to Employee menu to login
         }
 
-        private void EmployeeLogin()
+        public void EmployeeMenu()
         {
             Console.Clear();
-            Console.WriteLine("Now in Employee Login. Press any key to return now...");
+            Console.WriteLine("Now in Employee Menu. Press any key to return now...");
             Console.ReadKey();
             return;
+            //Enter credentials, make sure they're valid for an existing employee
+
+            //Display the Employee menu
+            //Submit a ticket, view employee's ticket history, return
+            //Submit Ticket -> Ticket Submission Form
+            //  On successful submission, show ticket details and restart Employee menu
+            //View history -> Get All Tickets matching the employee's email
+            //Return -> return to main menu
         }
 
-        private void ManagerLogin()
+        public void ManagerLogin()
         {
             Console.Clear();
-            Console.WriteLine("Now in Manager Login. Press any key to return now...");
+            Console.WriteLine("Now in Manager Menu. Press any key to return now...");
             Console.ReadKey();
             return;
+            //Enter credentials, make sure the user has a Manager role
+
+            //Display the Manager menu
+            //Process pending tickets, return
+            //Process Tickets -> Process Tickets Form (show Ticket info, MUST Approve/Reject)
+            //  Queue<Ticket> pending = new Queue<Ticket>(repo.getAllTickets());
+            //Return -> return to main menu
         }
     }
 }
