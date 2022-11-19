@@ -11,7 +11,7 @@ GO
 
 CREATE TABLE P1.Employee (
 	Email NVARCHAR(255) NOT NULL,
-	Password BINARY(64) NOT NULL,
+	Password VARBINARY(64) NOT NULL,
 	Role NVARCHAR(8) NOT NULL DEFAULT 'Employee',
 	CHECK (Role IN ('Employee', 'Manager') AND Email LIKE '%@%.%'),
 	PRIMARY KEY (Email)

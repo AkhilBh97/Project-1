@@ -11,16 +11,14 @@ namespace Project1.Logic
         //Fields
         public string Email { get; set; }
         //readonly because this should not be changed
-        private readonly string _password;
         public string Role { get; set; }
 
         //Constructors
-        public Employee(string email, string password, string? role="Employee")
+        public Employee() { }
+        public Employee(string email, string? role="Employee")
         {
             this.Email = email;
-            this._password = password;
             this.Role = role;
-            
         }
 
         //Methods
