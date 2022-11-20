@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication();
 
-//The connection string, derived from our Secrets JSON
+//The connection string, found in our Secrets JSON
 var connvalue = builder.Configuration.GetValue<string>("ConnectionStrings:ConnxString");
 builder.Services.AddTransient<SqlRepository>();
 
@@ -49,7 +49,7 @@ app.MapPost("/login", (string email, string password, SqlRepository repo) =>
         //Return a 401 status code, meaning credentials were off 
         return Results.StatusCode(401);
     }
-    
+    //User verified, return the Employee and produce a 200OK response
     return Results.Ok(e);
 });
 

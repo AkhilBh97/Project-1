@@ -34,8 +34,10 @@ namespace Project1.Data
 
             using (SHA1 sha1 = SHA1.Create())
             {
+                //ComputeHash takes a byte array and returns 40 bytes, separated by dashes
                 hash = sha1.ComputeHash(inbyte);
             }
+            //remove the dashes and prepend 0x to mark the hash as a hexadecimal string
             return "0x" + BitConverter.ToString(hash).Replace("-", "");
         }
 
@@ -50,7 +52,6 @@ namespace Project1.Data
             string cmdS = $"SELECT TicketID, Email, Description, Amount, Status FROM P1.Ticket, P1.Employee WHERE P1.Employee.ID=P1.Ticket.EmplID AND Status='{status}';";
 
             using SqlCommand cmd = new(cmdS, connection);
-            //cmd.Parameters.AddWithValue("@status", status);
 
             using SqlDataReader reader = cmd.ExecuteReader();
 
@@ -86,6 +87,7 @@ namespace Project1.Data
             Ticket tmpTicket;
             while (reader.Read())
             {
+                //Amount column stored as a Decimal in the table, so convert it to a double before passing it 
                 tmpTicket = new Ticket(reader.GetInt32(0), email, reader.GetString(2),
                     Decimal.ToDouble(reader.GetDecimal(3)), reader.GetString(4));
                 tickets.Add(tmpTicket);
@@ -115,7 +117,6 @@ namespace Project1.Data
 
             //      TicketID    EmplID  Description     Amount  Status
             using SqlCommand cmd2 = new SqlCommand(cmdS, connection);
-            //cmd2.Parameters.AddWithValue("@status", "Pending");
 
             using SqlDataReader reader = cmd2.ExecuteReader();
 
@@ -210,15 +211,12 @@ namespace Project1.Data
             string cmdS = $"SELECT ID, Email, Role FROM P1.Employee WHERE Email='{email}' AND Password=CONVERT(binary(20), '{passwordHash}', 1);";
 
             using SqlCommand cmd1 = new SqlCommand(cmdS, connection);
-            //cmd1.Parameters.AddWithValue("@email", email);
-            //cmd1.Parameters.AddWithValue("@pass", passwordHash);
 
             using SqlDataReader reader = cmd1.ExecuteReader();
             
             while (reader.Read())
             {
                 Employee employee = new();
-                //employee = new Employee(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
                 employee.Id = reader.GetInt32(0);
                 employee.Email = reader.GetString(1);
                 employee.Role = reader.GetString(2);
@@ -227,7 +225,7 @@ namespace Project1.Data
             }
             connection.Close();
 
-            //if (employee is not null) return employee;
+            //if nothing returned by the reader, return a null object
             
             return null;
         }
