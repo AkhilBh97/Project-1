@@ -69,16 +69,20 @@ namespace Project1.Data
             return tickets;
         }
 
-        //An employee is calling this method, so they will pass their ID and email
-        public List<Ticket> GetTicketList(int emplID, string email)
+        //An employee is calling this method, so they will pass their ID and email, optional status
+        public List<Ticket> GetTicketList(int emplID, string email, string? status)
         {
             List<Ticket> tickets = new List<Ticket>();
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
 
-            string cmdS = @"SELECT * FROM P1.Ticket WHERE EmplID=@emplid;";
+            StringBuilder cmdSb = new();
+            cmdSb.Append(@"SELECT * FROM P1.Ticket WHERE EmplID=@emplid");
+            if (status is not null) cmdSb.Append($" AND Status='{status}'");
+            cmdSb.Append(";");
+            //string cmdS = @"SELECT * FROM P1.Ticket WHERE EmplID=@emplid;";
 
-            using SqlCommand cmd = new(cmdS, connection);
+            using SqlCommand cmd = new(cmdSb.ToString(), connection);
             cmd.Parameters.AddWithValue("@emplid", emplID);
 
             using SqlDataReader reader = cmd.ExecuteReader();

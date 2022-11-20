@@ -17,7 +17,7 @@ namespace Project1.Data
         //I want to get all the tickets matching either an email or a status
         //Either get a Queue of pending tickets, or a List of all an employee's tickets 
         Queue<Ticket> GetTicketQueue(string status);
-        List<Ticket> GetTicketList(int emplId, string email);
+        List<Ticket> GetTicketList(int emplId, string email, string? status);
 
         Ticket CreateTicket(int emplId, double amount, string desc);
         void UpdateTicketStatus(int id, string status);

@@ -72,10 +72,10 @@ app.MapGet("/tickets/{status}", (string status, SqlRepository repo) =>
 });
 
 //Return a list of Tickets, GET
-app.MapGet("/tickets/employee/{id}", (int id, string email, SqlRepository repo) =>
+app.MapGet("/tickets/employee/{id}", (int id, string email, string? status, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
-    List<Ticket> tickets = repo.GetTicketList(id, email);
+    List<Ticket> tickets = repo.GetTicketList(id, email, status);
 
     return Results.Ok(tickets);
 });
