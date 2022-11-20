@@ -40,48 +40,54 @@ namespace Project1.Data
         }
 
         //Return a queue of tickets
+        //Most likely this will just get a queue of pending tickets, but we're passing in a status
         public Queue<Ticket> GetTicketQueue(string status)
         {
             Queue<Ticket> tickets = new Queue<Ticket>();
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
 
-            string cmdS = @"SELECT * FROM P1.Ticket WHERE Status='@status';";
+            string cmdS = $"SELECT TicketID, Email, Description, Amount, Status FROM P1.Ticket, P1.Employee WHERE P1.Employee.ID=P1.Ticket.EmplID AND Status='{status}';";
 
             using SqlCommand cmd = new(cmdS, connection);
-            cmd.Parameters.AddWithValue("@status", status);
+            //cmd.Parameters.AddWithValue("@status", status);
 
             using SqlDataReader reader = cmd.ExecuteReader();
 
             Ticket tmpTicket;
             while (reader.Read())
             {
-                tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(2), reader.GetString(3),
-                    reader.GetDouble(4), reader.GetString(5));
+                Console.WriteLine("Reading the pending tickets here...");
+                tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(1), reader.GetString(2),
+                    Decimal.ToDouble(reader.GetDecimal(3)), reader.GetString(4));
                 tickets.Enqueue(tmpTicket);
+
+                Console.WriteLine($"Here's the Ticket: {tmpTicket.ToString()}");
             }
             connection.Close();
             return tickets;
         }
 
-        public List<Ticket> GetTicketList(string email)
+        //An employee is calling this method, so they will pass their ID and email
+        public List<Ticket> GetTicketList(int emplID, string email)
         {
             List<Ticket> tickets = new List<Ticket>();
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
 
-            string cmdS = @"SELECT * FROM P1.Ticket WHERE EmplEmail='@email';";
+            string cmdS = @"SELECT * FROM P1.Ticket WHERE EmplID=@emplid;";
 
             using SqlCommand cmd = new(cmdS, connection);
-            cmd.Parameters.AddWithValue("@email", email);
+            cmd.Parameters.AddWithValue("@emplid", emplID);
 
             using SqlDataReader reader = cmd.ExecuteReader();
 
+            //      TicketID    EmplID  Description     Amount  Status
             Ticket tmpTicket;
             while (reader.Read())
             {
-                tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(2), reader.GetString(3),
-                    reader.GetDouble(4), reader.GetString(5));
+                tmpTicket = new Ticket(reader.GetInt32(0), email, reader.GetString(2),
+                    Decimal.ToDouble(reader.GetDecimal(3)), reader.GetString(4));
                 tickets.Add(tmpTicket);
             }
             connection.Close();
@@ -196,7 +202,6 @@ namespace Project1.Data
             if (password == null || email==null) return null;
             //hash the password and use that to search for the Employee
             string passwordHash = Hash(password);
-            Console.WriteLine($"Email: {email}\nPassword: {password}\nHash: {passwordHash}");
 
             using SqlConnection connection = new(this._connectionstring);
             connection.Open();
@@ -212,8 +217,6 @@ namespace Project1.Data
             
             while (reader.Read())
             {
-
-                Console.WriteLine("Am I Reading a new employee or not?");
                 Employee employee = new();
                 //employee = new Employee(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
                 employee.Id = reader.GetInt32(0);

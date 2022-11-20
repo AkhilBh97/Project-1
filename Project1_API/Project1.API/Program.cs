@@ -43,15 +43,14 @@ app.MapPost("/login", (string email, string password, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
     Employee? e = repo.GetEmployee(email, password);
-    //Console.WriteLine(e.ToString());
+    
     if (e == null)
     {
-        //Do something here, probably return a specific code   
+        //Return a 401 status code, meaning credentials were off 
         return Results.StatusCode(401);
     }
-    Console.WriteLine($"This means I actually returned a good object: {e.ToString()}");
+    
     return Results.Ok(e);
-    //else return Results.Ok(e);
 });
 
 //Create a ticket. POST
@@ -63,6 +62,24 @@ app.MapPost("/tickets", (int emplId, double amt, string desc, SqlRepository repo
     return Results.Created($"/tickets/{t.TicketID}", t);
 });
 
+//Return a queue of pending Tickets. GET
+app.MapGet("/tickets/{status}", (string status, SqlRepository repo) =>
+{
+    repo.setConnectionString(connvalue);
+    Queue<Ticket> ticketsPending = repo.GetTicketQueue(status);
+
+    return Results.Ok(ticketsPending);
+});
+
+//Return a list of Tickets, GET
+app.MapGet("/tickets/employee/{id}", (int id, string email, SqlRepository repo) =>
+{
+    repo.setConnectionString(connvalue);
+    List<Ticket> tickets = repo.GetTicketList(id, email);
+
+    return Results.Ok(tickets);
+});
+
 //Update a ticket's status to Approved or Rejected
 app.MapPut("/tickets/{id}", (int id, string status, SqlRepository repo) =>
 {
@@ -71,6 +88,6 @@ app.MapPut("/tickets/{id}", (int id, string status, SqlRepository repo) =>
     return Results.NoContent();
 });
 
-//Return an enumerable collection of Tickets. GET
+
 
 app.Run();
