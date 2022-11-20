@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Project1.Logic\Project1.Logic.csproj" />
+    <ProjectReference Include="..\Project1_API.Logic\Project1_API.Logic.csproj" />
   </ItemGroup>
 
 </Project>

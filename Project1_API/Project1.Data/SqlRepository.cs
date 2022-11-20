@@ -1,4 +1,4 @@
-﻿using Project1.Logic;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -6,21 +6,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using Project1_API.Logic;
 
 namespace Project1.Data
 {
     public class SqlRepository : IRepository
     {
         //Fields
-        private readonly string _connectionstring;
+        private string? _connectionstring;
 
         //Constructors
-        public SqlRepository(string connectionstring)
+        public SqlRepository(){}
+
+        //Methods
+
+        //Set the connection string here
+        public void setConnectionString(string? connectionstring)
         {
             this._connectionstring = connectionstring ?? throw new ArgumentNullException(nameof(connectionstring));
         }
-
-        //Methods
 
         //Hash a string and return as a byte array
         public string Hash(string s)
@@ -35,35 +39,65 @@ namespace Project1.Data
             return "0x" + BitConverter.ToString(hash).Replace("-", "");
         }
 
-        //Get all tickets from the DB
-        public IEnumerable<Ticket> getAllTickets(bool code, string search)
+        //Return a queue of tickets
+        public Queue<Ticket> GetTicketQueue(string status)
         {
-            IEnumerable<Ticket> result;
-            //the condition is different
-            StringBuilder cmdSB = new();
-            cmdSB.Append("SELECT * FROM P1.Ticket WHERE ");
+            Queue<Ticket> tickets = new Queue<Ticket>();
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
-            //if code is true: Query for all tickets where status is pending, return a Queue
-            //if code is false: Query for all tickets from an email, return a List
-            result = code ? new Queue<Ticket>() : new List<Ticket>();
-            
-            //now append the right condition to the query string
 
+            string cmdS = @"SELECT * FROM P1.Ticket WHERE Status='@status';";
 
-            return result;
+            using SqlCommand cmd = new(cmdS, connection);
+            cmd.Parameters.AddWithValue("@status", status);
+
+            using SqlDataReader reader = cmd.ExecuteReader();
+
+            Ticket tmpTicket;
+            while (reader.Read())
+            {
+                tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(2), reader.GetString(3),
+                    reader.GetDouble(4), reader.GetString(5));
+                tickets.Enqueue(tmpTicket);
+            }
+            connection.Close();
+            return tickets;
+        }
+
+        public List<Ticket> GetTicketList(string email)
+        {
+            List<Ticket> tickets = new List<Ticket>();
+            using SqlConnection connection = new SqlConnection(this._connectionstring);
+            connection.Open();
+
+            string cmdS = @"SELECT * FROM P1.Ticket WHERE EmplEmail='@email';";
+
+            using SqlCommand cmd = new(cmdS, connection);
+            cmd.Parameters.AddWithValue("@email", email);
+
+            using SqlDataReader reader = cmd.ExecuteReader();
+
+            Ticket tmpTicket;
+            while (reader.Read())
+            {
+                tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(2), reader.GetString(3),
+                    reader.GetDouble(4), reader.GetString(5));
+                tickets.Add(tmpTicket);
+            }
+            connection.Close();
+            return tickets;
         }
 
         //Insert a new Ticket into the DB
-        public Ticket CreateTicket(string email, double amount, string desc)
+        public Ticket CreateTicket(int emplId, double amount, string desc)
         {
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
             //create a new ticket given an employee email, amount, and description
-            string cmdS = @"INSERT INTO P1.Ticket (EmplEmail, Amount, Description) VALUES (@email, @amt, @desc);";
+            string cmdS = @"INSERT INTO P1.Ticket (EmplID, Amount, Description) VALUES (@emplid, @amt, @desc);";
 
             using SqlCommand cmd1 = new SqlCommand(cmdS, connection);
-            cmd1.Parameters.AddWithValue("@email", email);
+            cmd1.Parameters.AddWithValue("@emplid", emplId);
             cmd1.Parameters.AddWithValue("@amt", amount);
             cmd1.Parameters.AddWithValue("@desc", desc);
 
@@ -71,24 +105,46 @@ namespace Project1.Data
 
             //now to get the ticket back from the database
             //the status is presumed to be Pending, so we will search for that
-            cmdS = @"SELECT TicketID, EmplEmail, Description, Amount, Status FROM P1.Ticket WHERE EmplEmail=@email AND Status=@status;";
+            cmdS = "SELECT TicketID, Email, Description, Amount, Status FROM P1.Ticket, P1.Employee WHERE P1.Employee.ID=P1.Ticket.EmplID AND Status='Pending';";
 
+            //      TicketID    EmplID  Description     Amount  Status
             using SqlCommand cmd2 = new SqlCommand(cmdS, connection);
-            cmd2.Parameters.AddWithValue("@email", email);
-            cmd2.Parameters.AddWithValue("@status", "Pending");
+            //cmd2.Parameters.AddWithValue("@status", "Pending");
 
             using SqlDataReader reader = cmd2.ExecuteReader();
 
             Ticket tmpTicket;
             while (reader.Read())
             {
-                return tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetDouble(3), reader.GetString(4) );
+                //[1] is the EmplID, which we do not need here
+                //EmplID just links Ticket table to the Employee table
+                return tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), 
+                    Decimal.ToDouble(reader.GetDecimal(3)), reader.GetString(4) );
             }
 
             connection.Close();
             //Insertion failed
             Ticket noticket = new();
             return noticket;
+        }
+
+        //Update a ticket's status in the DB
+        //id: the TicketID 
+        //status: The new status, either approved or denied
+        public void UpdateTicketStatus(int id, string status)
+        {
+            using SqlConnection connection = new(this._connectionstring);
+            connection.Open();
+
+            string cmdS = $"UPDATE P1.Ticket SET Status='{status}' WHERE TicketID={id};";
+            using SqlCommand cmd1 = new SqlCommand(cmdS, connection);
+            //cmd1.Parameters.AddWithValue("@status", status);
+            //cmd1.Parameters.AddWithValue("@id", id);
+
+            cmd1.ExecuteNonQuery();
+            cmd1.Dispose();
+            connection.Close();
+            return;
         }
 
         //Insert an Employee in the DB
@@ -105,8 +161,9 @@ namespace Project1.Data
             connection.Open();
 
             //SHA1 hashes a byte array to an array of 40 bytes
-            //converting that array to a string, removing dashes, and prepending 0x means all hashes are 42 bytes
-            string cmdS = @"INSERT INTO P1.Employee (Email, Password, Role) VALUES (@email, CONVERT(varbinary(42), @pass, 1), @role);";
+            //converting that array to a string, removing dashes, and prepending 0x means all hashes are strings of len 42
+            //converting that string to a varbinary gave us a 20-byte binary string, so we convert to binary(20)
+            string cmdS = @"INSERT INTO P1.Employee (Email, Password, Role) VALUES (@email, CONVERT(binary(20), @pass, 1), @role);";
 
             using SqlCommand cmd1 = new SqlCommand(cmdS, connection);
             cmd1.Parameters.AddWithValue("@email", email);
@@ -116,7 +173,7 @@ namespace Project1.Data
             cmd1.ExecuteNonQuery();
 
             //now get that Employee back, but just the email and role
-            cmdS = @"SELECT Email, Role FROM P1.Employee WHERE Email=@email;";
+            cmdS = @"SELECT ID, Email, Role FROM P1.Employee WHERE Email=@email;";
 
             using SqlCommand cmd2 = new SqlCommand(cmdS, connection);
             cmd2.Parameters.AddWithValue("@email", email);
@@ -125,7 +182,7 @@ namespace Project1.Data
             Employee tmpEmp;
             while (reader.Read())
             {
-                return tmpEmp = new Employee(reader.GetString(0), reader.GetString(1));
+                return tmpEmp = new Employee(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
             }
             connection.Close();
 
@@ -133,9 +190,43 @@ namespace Project1.Data
             return e;
         }
 
-        public Employee GetEmployee()
-        {
-            throw new NotImplementedException();
+        public Employee? GetEmployee(string? email, string? password)
+        {   
+            //either password or email are null, return a null object
+            if (password == null || email==null) return null;
+            //hash the password and use that to search for the Employee
+            string passwordHash = Hash(password);
+            Console.WriteLine($"Email: {email}\nPassword: {password}\nHash: {passwordHash}");
+
+            using SqlConnection connection = new(this._connectionstring);
+            connection.Open();
+
+            //Because the password is hashed, 
+            string cmdS = $"SELECT ID, Email, Role FROM P1.Employee WHERE Email='{email}' AND Password=CONVERT(binary(20), '{passwordHash}', 1);";
+
+            using SqlCommand cmd1 = new SqlCommand(cmdS, connection);
+            //cmd1.Parameters.AddWithValue("@email", email);
+            //cmd1.Parameters.AddWithValue("@pass", passwordHash);
+
+            using SqlDataReader reader = cmd1.ExecuteReader();
+            
+            while (reader.Read())
+            {
+
+                Console.WriteLine("Am I Reading a new employee or not?");
+                Employee employee = new();
+                //employee = new Employee(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
+                employee.Id = reader.GetInt32(0);
+                employee.Email = reader.GetString(1);
+                employee.Role = reader.GetString(2);
+
+                return employee;
+            }
+            connection.Close();
+
+            //if (employee is not null) return employee;
+            
+            return null;
         }
     }
 }

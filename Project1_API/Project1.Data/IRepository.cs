@@ -1,4 +1,5 @@
-﻿using Project1.Logic;
+﻿
+using Project1_API.Logic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,15 @@ namespace Project1.Data
 
         //I want to get all the tickets matching either an email or a status
         //Either get a Queue of pending tickets, or a List of all an employee's tickets 
-        IEnumerable<Ticket> getAllTickets(bool code, string search);
+        Queue<Ticket> GetTicketQueue(string status);
+        List<Ticket> GetTicketList(string email);
 
-        Ticket CreateTicket(string email, double amount, string desc);
+        Ticket CreateTicket(int emplId, double amount, string desc);
+        void UpdateTicketStatus(int id, string status);
 
         //I want to store User info here
         Employee CreateEmployee(string email, string password, string? role);
-        Employee GetEmployee();
+        //Check that the password matches what's in the DB
+        Employee? GetEmployee(string email, string password);
     }
 }
