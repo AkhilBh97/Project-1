@@ -8,10 +8,10 @@ namespace Project1_API.Logic
 {
     public class TicketRecord
     {
-        public Ticket T { get; set; }
-        public int EmplID { get; set; }
+        public Ticket? T { get; set; }
+        public int? EmplID { get; set; }
 
-        public TicketRecord(Ticket t, int emplID)
+        public TicketRecord(Ticket? t, int? emplID)
         {
             T = t;
             EmplID = emplID;

@@ -84,19 +84,23 @@ app.MapGet("/tickets/{status}", (string status, SqlRepository repo) =>
 });
 
 //Return a list of Tickets, GET
-app.MapGet("/tickets/employee/{id}", (int id, string email, string? status, SqlRepository repo) =>
+app.MapGet("/tickets/employee/{id}", (int emplid, string email, string? status, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
-    List<Ticket> tickets = repo.GetTicketList(id, email, status);
+    List<Ticket> tickets = repo.GetTicketList(emplid, email, status);
 
     return Results.Ok(tickets);
 });
 
 //Update a ticket's status to Approved or Rejected
-app.MapPut("/tickets/{id}", (int id, string status, SqlRepository repo) =>
+app.MapPut("/tickets/{id}", (TicketRecord tr, SqlRepository repo) =>
 {
+    //if the ID is invalid, or the status is not Approved/Denied, return Status 400
+    if (tr.T.TicketID is null || tr.T.TicketID < 1) return Results.BadRequest();
+    if (tr.T.Status != "Approved" && tr.T.Status != "Denied") return Results.BadRequest();
+
     repo.setConnectionString(connvalue);
-    repo.UpdateTicketStatus(id, status);
+    repo.UpdateTicketStatus(tr.T.TicketID, tr.T.Status);
     return Results.NoContent();
 });
 

@@ -101,7 +101,7 @@ namespace Project1.Data
         }
 
         //Insert a new Ticket into the DB
-        public Ticket CreateTicket(int emplId, double amount, string desc)
+        public Ticket CreateTicket(int? emplId, double amount, string desc)
         {
             if (desc is null || desc == "") return new Ticket(-1, "Ticket submission failed. Ticket must have a description", "Exception", 0.0);
             using SqlConnection connection = new SqlConnection(this._connectionstring);
@@ -143,7 +143,7 @@ namespace Project1.Data
         //Update a ticket's status in the DB
         //id: the TicketID 
         //status: The new status, either approved or denied
-        public void UpdateTicketStatus(int id, string status)
+        public void UpdateTicketStatus(int? id, string? status)
         {
             using SqlConnection connection = new(this._connectionstring);
             connection.Open();

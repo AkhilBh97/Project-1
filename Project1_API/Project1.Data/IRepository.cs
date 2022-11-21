@@ -19,8 +19,8 @@ namespace Project1.Data
         Queue<Ticket> GetTicketQueue(string status);
         List<Ticket> GetTicketList(int? emplId, string? email, string? status);
 
-        Ticket CreateTicket(int emplId, double amount, string desc);
-        void UpdateTicketStatus(int id, string status);
+        Ticket CreateTicket(int? emplId, double amount, string desc);
+        void UpdateTicketStatus(int? id, string? status);
 
         //I want to store User info here
         Employee CreateEmployee(string email, string password, string? role);
