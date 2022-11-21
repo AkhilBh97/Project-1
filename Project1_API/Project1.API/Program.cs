@@ -56,14 +56,13 @@ app.MapPost("/login", (CredentialRecord cr, SqlRepository repo) =>
         //Return a 401 status code, meaning credentials were off 
         return Results.StatusCode(401);
     }
-    //User verified, return the Employee and produce a 200OK response
-    
-    return Results.Ok(e);
-    
+    //User verified, return the Employee and produce a 202 response with the right URL
+    //If employee is an Employee, return the Employee URI, else Manager
+    return Results.Accepted($"/{e.Role}", e);
 });
 
 //Create a ticket. POST
-app.MapPost("/tickets", (TicketRecord tr, SqlRepository repo) =>
+app.MapPost("Employee/{emplId}/tickets", (TicketRecord tr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
 
@@ -71,11 +70,11 @@ app.MapPost("/tickets", (TicketRecord tr, SqlRepository repo) =>
 
     if (t.Description == "Exception") return Results.BadRequest(t);
 
-    return Results.Created($"/tickets/{t.TicketID}", t);
+    return Results.Created($"Employee/{tr.EmplID}/tickets/{t.TicketID}", t);
 });
 
 //Return a queue of pending Tickets. GET
-app.MapGet("/tickets/{status}", (string status, SqlRepository repo) =>
+app.MapGet("Manager/tickets/{status}", (string status, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
     Queue<Ticket> ticketsPending = repo.GetTicketQueue(status);
@@ -84,7 +83,7 @@ app.MapGet("/tickets/{status}", (string status, SqlRepository repo) =>
 });
 
 //Return a list of Tickets, GET
-app.MapGet("/tickets/employee/{id}", (int emplid, string email, string? status, SqlRepository repo) =>
+app.MapGet("/Employee/{emplid}/tickets", (int emplid, string email, string? status, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
     List<Ticket> tickets = repo.GetTicketList(emplid, email, status);
@@ -93,7 +92,7 @@ app.MapGet("/tickets/employee/{id}", (int emplid, string email, string? status, 
 });
 
 //Update a ticket's status to Approved or Rejected
-app.MapPut("/tickets/{id}", (TicketRecord tr, SqlRepository repo) =>
+app.MapPut("Manager/tickets/{id}", (TicketRecord tr, SqlRepository repo) =>
 {
     //if the ID is invalid, or the status is not Approved/Denied, return Status 400
     if (tr.T.TicketID is null || tr.T.TicketID < 1) return Results.BadRequest();

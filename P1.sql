@@ -2,8 +2,8 @@ CREATE SCHEMA P1;
 GO
 
 -- ///////////////////DROP TABLES///////////////////////
--- DROP TABLE P1.Tickets
--- DROP TABLE P1.Employee
+-- DROP TABLE P1.Ticket;
+-- DROP TABLE P1.Employee;
 
 -- ///////////////////CREATE TABLES///////////////////////////
 
@@ -14,7 +14,7 @@ CREATE TABLE P1.Employee (
 	Email NVARCHAR(255) UNIQUE NOT NULL,
 	Password BINARY(20) NOT NULL,
 	Role NVARCHAR(8) NOT NULL DEFAULT 'Employee',
-	CHECK (Role IN ('Employee', 'Manager') AND Email LIKE '%@%.%'),
+	CHECK (Email LIKE '%@%.%'),
 	PRIMARY KEY (ID)
 );
 
