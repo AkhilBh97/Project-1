@@ -32,7 +32,6 @@ app.UseHttpsRedirection();
 app.MapPost("/register", (CredentialRecord cr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
-    Console.WriteLine($"Here's the CR you passed:\nEmail: {cr.E.Email}\nPass: {cr.Pass}\nRole: {cr.E.Role}");
 
     Employee e = repo.CreateEmployee(cr.E.Email, cr.Pass, cr.E.Role);
     //if the status of e reads "Exception", return the excepted employee and produce a response

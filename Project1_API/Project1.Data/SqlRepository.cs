@@ -58,12 +58,10 @@ namespace Project1.Data
             Ticket tmpTicket;
             while (reader.Read())
             {
-                Console.WriteLine("Reading the pending tickets here...");
                 tmpTicket = new Ticket(reader.GetInt32(0), reader.GetString(1), reader.GetString(2),
                     Decimal.ToDouble(reader.GetDecimal(3)), reader.GetString(4));
                 tickets.Enqueue(tmpTicket);
 
-                Console.WriteLine($"Here's the Ticket: {tmpTicket.ToString()}");
             }
             connection.Close();
             return tickets;
