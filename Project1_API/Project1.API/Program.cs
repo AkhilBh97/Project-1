@@ -29,20 +29,20 @@ app.UseHttpsRedirection();
 //The HTTP requests will be going here
 
 //Register a user. POST
-app.MapPost("/register", (string email, string password, string? role, SqlRepository repo) =>
+app.MapPost("/register", (CredentialRecord cr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
-    Employee e = repo.CreateEmployee(email, password, role);
+    Employee e = repo.CreateEmployee(cr.E.Email, cr.Pass, cr.E.Role);
 
     if (e.Role == "Employee") return Results.Created($"/Employee/{e.Id}", e);
     else return Results.Created($"/Manager/{e.Id}", e);
 });
 
 //Login a User. POST
-app.MapPost("/login", (string email, string password, SqlRepository repo) =>
+app.MapPost("/login", (CredentialRecord cr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
-    Employee? e = repo.GetEmployee(email, password);
+    Employee? e = repo.GetEmployee(cr.E.Email, cr.Pass);
     
     if (e == null)
     {

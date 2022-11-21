@@ -16,7 +16,7 @@ namespace Project1_API.Logic
 
         //Constructors
         public Employee() { }
-        public Employee(int id, string email, string? role = "Employee")
+        public Employee(int? id, string? email, string? role = "Employee")
         {
             this.Id = id;
             this.Email = email;

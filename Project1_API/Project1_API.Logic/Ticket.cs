@@ -20,7 +20,7 @@ namespace Project1_API.Logic
         //Constructors
         public Ticket() { }
 
-        public Ticket(int id, string email, string desc, double amount, string status = "Pending")
+        public Ticket(int? id, string? email, string? desc, double? amount, string status = "Pending")
         {
             this.TicketID = id;
             this.EmplEmail = email;

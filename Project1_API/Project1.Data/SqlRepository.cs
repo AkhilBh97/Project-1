@@ -70,7 +70,7 @@ namespace Project1.Data
         }
 
         //An employee is calling this method, so they will pass their ID and email, optional status
-        public List<Ticket> GetTicketList(int emplID, string email, string? status)
+        public List<Ticket> GetTicketList(int? emplID, string? email, string? status)
         {
             List<Ticket> tickets = new List<Ticket>();
             using SqlConnection connection = new SqlConnection(this._connectionstring);
