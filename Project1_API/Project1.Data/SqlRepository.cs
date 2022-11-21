@@ -167,10 +167,10 @@ namespace Project1.Data
             if (password is null || password == "") return new Employee(-1, "Registration failed, no password submitted", "Exception");
             //hash the password here
             string passwordHash = Hash(password);
-            
+
             //just make sure the role is either Employee or Manager
             //if null is passed, default to Employee
-            role ??= "Employee";
+            role = (role is null || role == "string") ? "Employee" : role;
 
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
@@ -178,23 +178,22 @@ namespace Project1.Data
             //SHA1 hashes a byte array to an array of 40 bytes
             //converting that array to a string, removing dashes, and prepending 0x means all hashes are strings of len 42
             //converting that string to a varbinary gave us a 20-byte binary string, so we convert to binary(20)
-            string cmdS = @"INSERT INTO P1.Employee (Email, Password, Role) VALUES (@email, CONVERT(binary(20), @pass, 1), @role);";
-
+            string cmdS = $"INSERT INTO P1.Employee (Email, Password, Role) VALUES ('{email}', CONVERT(binary(20), {passwordHash}, 1), '{role}');";
+           
             using SqlCommand cmd1 = new SqlCommand(cmdS, connection);
-            cmd1.Parameters.AddWithValue("@email", email);
-            cmd1.Parameters.AddWithValue("@pass", passwordHash);
-            cmd1.Parameters.AddWithValue("@role", role);
+            //cmd1.Parameters.AddWithValue("@email", email);
+            //cmd1.Parameters.AddWithValue("@pass", passwordHash);
+            //cmd1.Parameters.AddWithValue("@role", role);
 
             try
             {
                 //Attempt an insertion
                 cmd1.ExecuteNonQuery();
-
                 //now get that Employee back, but just the email and role
-                cmdS = @"SELECT ID, Email, Role FROM P1.Employee WHERE Email=@email;";
+                cmdS = $"SELECT ID, Email, Role FROM P1.Employee WHERE Email='{email}';";
 
                 using SqlCommand cmd2 = new SqlCommand(cmdS, connection);
-                cmd2.Parameters.AddWithValue("@email", email);
+                //cmd2.Parameters.AddWithValue("@email", email);
 
                 using SqlDataReader reader = cmd2.ExecuteReader();
                 Employee tmpEmp;
@@ -205,7 +204,8 @@ namespace Project1.Data
             }
             catch (SqlException exc)
             {
-                return new Employee(-1, "Registration failed, this email is in currently use", "Exception");
+                return new Employee(-1, exc.Message, "Exception");
+                //return new Employee(-1, "Registration failed, this email is in currently use", "Exception");
             }
             connection.Close();
 

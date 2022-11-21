@@ -32,6 +32,8 @@ app.UseHttpsRedirection();
 app.MapPost("/register", (CredentialRecord cr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
+    Console.WriteLine($"Here's the CR you passed:\nEmail: {cr.E.Email}\nPass: {cr.Pass}\nRole: {cr.E.Role}");
+
     Employee e = repo.CreateEmployee(cr.E.Email, cr.Pass, cr.E.Role);
     //if the status of e reads "Exception", return the excepted employee and produce a response
     if (e.Role == "Exception") return Results.BadRequest(e);
@@ -55,7 +57,9 @@ app.MapPost("/login", (CredentialRecord cr, SqlRepository repo) =>
         return Results.StatusCode(401);
     }
     //User verified, return the Employee and produce a 200OK response
+    
     return Results.Ok(e);
+    
 });
 
 //Create a ticket. POST
@@ -63,8 +67,9 @@ app.MapPost("/tickets", (TicketRecord tr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
 
-
     Ticket t = repo.CreateTicket(tr.EmplID, (double)tr.T.Amount, tr.T.Description);
+
+    if (t.Description == "Exception") return Results.BadRequest(t);
 
     return Results.Created($"/tickets/{t.TicketID}", t);
 });
