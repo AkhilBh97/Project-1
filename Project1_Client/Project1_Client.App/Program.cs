@@ -1,5 +1,6 @@
 ﻿
 using Project1_Client.Logic;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -15,6 +16,10 @@ namespace Project1_Client.App
         }
 
         //This is the main program logic
+        //FLOW:
+        //  Display some menu where user can choose to Register, Login an account, or exit
+        //  If user chooses to Register an account
+        //      
         static async Task RunAsync()
         {
             client.BaseAddress = new Uri("https://localhost:7207/");
@@ -25,27 +30,6 @@ namespace Project1_Client.App
             {
                 string? userinput, pass;
                 Employee e;
-                //ConsoleKey choice;
-
-                //Demonstrate registering a user
-                
-                e = new();
-                Console.WriteLine("You will create an employee here:");
-                Console.Write("Enter an email: ");
-                e.Email = Console.ReadLine();
-                Console.Write("\nEnter a password: ");
-                pass = Console.ReadLine();
-                while (pass != null)
-                {
-                    Console.Write("\nPassword cannot be empty. Enter a password: ";
-                    pass = Console.ReadLine();
-                }
-                Console.Write("\nAre you a manager? (Y/N)");
-                userinput = Console.ReadLine();
-                if (userinput.ToUpper() == "Y") e.Role = "Manager";
-                
-                var url = await CreateEmployeeAsync(e, pass);
-                
                 
             }//end of try block
             catch (Exception e)
@@ -130,6 +114,13 @@ namespace Project1_Client.App
 
         //UPDATE methods
 
+        static async Task<Ticket> UpdateTicket(Ticket t, int emplid)
+        {
+            HttpResponseMessage response = await client.PutAsJsonAsync($"Manager/tickets/{emplid}", new TicketRecord(t, emplid));
+            response.EnsureSuccessStatusCode();
 
+            t = await response.Content.ReadAsAsync<Ticket>();
+            return t;
+        }
     }
 }
