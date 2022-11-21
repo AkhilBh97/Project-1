@@ -33,6 +33,11 @@ app.MapPost("/register", (CredentialRecord cr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
     Employee e = repo.CreateEmployee(cr.E.Email, cr.Pass, cr.E.Role);
+    //if the status of e reads "Exception", return the excepted employee and produce a response
+    if (e.Role == "Exception") return Results.BadRequest(e);
+
+    //if e is null, then no records were found despite a valid insert, therefore the request failed
+    if (e is null) return Results.BadRequest(e);
 
     if (e.Role == "Employee") return Results.Created($"/Employee/{e.Id}", e);
     else return Results.Created($"/Manager/{e.Id}", e);

@@ -103,6 +103,7 @@ namespace Project1.Data
         //Insert a new Ticket into the DB
         public Ticket CreateTicket(int emplId, double amount, string desc)
         {
+            if (desc is null || desc == "") return new Ticket(-1, "Ticket submission failed. Ticket must have a description", "Exception", 0.0);
             using SqlConnection connection = new SqlConnection(this._connectionstring);
             connection.Open();
             //create a new ticket given an employee email, amount, and description
@@ -161,6 +162,9 @@ namespace Project1.Data
         //Insert an Employee in the DB
         public Employee CreateEmployee(string email, string password, string? role)
         {
+            //handle null/empty email or password
+            if (email is null || email == "") return new Employee(-1, "Registration failed, no email submitted", "Exception");
+            if (password is null || password == "") return new Employee(-1, "Registration failed, no password submitted", "Exception");
             //hash the password here
             string passwordHash = Hash(password);
             
@@ -181,19 +185,27 @@ namespace Project1.Data
             cmd1.Parameters.AddWithValue("@pass", passwordHash);
             cmd1.Parameters.AddWithValue("@role", role);
 
-            cmd1.ExecuteNonQuery();
-
-            //now get that Employee back, but just the email and role
-            cmdS = @"SELECT ID, Email, Role FROM P1.Employee WHERE Email=@email;";
-
-            using SqlCommand cmd2 = new SqlCommand(cmdS, connection);
-            cmd2.Parameters.AddWithValue("@email", email);
-
-            using SqlDataReader reader = cmd2.ExecuteReader();
-            Employee tmpEmp;
-            while (reader.Read())
+            try
             {
-                return tmpEmp = new Employee(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
+                //Attempt an insertion
+                cmd1.ExecuteNonQuery();
+
+                //now get that Employee back, but just the email and role
+                cmdS = @"SELECT ID, Email, Role FROM P1.Employee WHERE Email=@email;";
+
+                using SqlCommand cmd2 = new SqlCommand(cmdS, connection);
+                cmd2.Parameters.AddWithValue("@email", email);
+
+                using SqlDataReader reader = cmd2.ExecuteReader();
+                Employee tmpEmp;
+                while (reader.Read())
+                {
+                    return tmpEmp = new Employee(reader.GetInt32(0), reader.GetString(1), reader.GetString(2));
+                }
+            }
+            catch (SqlException exc)
+            {
+                return new Employee(-1, "Registration failed, this email is in currently use", "Exception");
             }
             connection.Close();
 
