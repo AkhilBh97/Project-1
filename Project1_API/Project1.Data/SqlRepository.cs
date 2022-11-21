@@ -117,7 +117,7 @@ namespace Project1.Data
 
             //now to get the ticket back from the database
             //the status is presumed to be Pending, so we will search for that
-            cmdS = "SELECT TicketID, Email, Description, Amount, Status FROM P1.Ticket, P1.Employee WHERE P1.Employee.ID=P1.Ticket.EmplID AND Status='Pending';";
+            cmdS = $"SELECT TicketID, Email, Description, Amount, Status FROM P1.Ticket, P1.Employee WHERE P1.Employee.ID=P1.Ticket.EmplID AND P1.Ticket.EmplID='{emplId}' AND Status='Pending';";
 
             //      TicketID    EmplID  Description     Amount  Status
             using SqlCommand cmd2 = new SqlCommand(cmdS, connection);

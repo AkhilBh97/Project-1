@@ -54,10 +54,12 @@ app.MapPost("/login", (CredentialRecord cr, SqlRepository repo) =>
 });
 
 //Create a ticket. POST
-app.MapPost("/tickets", (int emplId, double amt, string desc, SqlRepository repo) =>
+app.MapPost("/tickets", (TicketRecord tr, SqlRepository repo) =>
 {
     repo.setConnectionString(connvalue);
-    Ticket t = repo.CreateTicket(emplId, amt, desc);
+
+
+    Ticket t = repo.CreateTicket(tr.EmplID, (double)tr.T.Amount, tr.T.Description);
 
     return Results.Created($"/tickets/{t.TicketID}", t);
 });
